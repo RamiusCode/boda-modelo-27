@@ -1,0 +1,461 @@
+---
+// src/components/Fecha.astro
+// Panel de la fecha sobre el mapamundi. mundo.png (941x1672) trae el papel
+// durazno y el mapa con la ruta de corazones ya dibujados.
+//
+// El fondo se pinta con background-size: 100% 100%, o sea que manda el
+// ancho, y la min-height le da la proporción real (177.7% del ancho). El
+// contenido está medido para caer cerca de ese alto: así el mapa del PNG
+// queda justo en el hueco que le deja .zona-mapa.
+import Contador from "./Contador.astro";
+
+// Los textos viven en src/i18n.
+import { textos } from "../i18n";
+
+
+const t = textos().fecha;
+
+// ── DATOS EDITABLES ───────────────────────────────────────────
+const inicialNovio = "A";
+const inicialNovia = "V";
+const anio = 2027;
+const mes = 10; // 10 = octubre
+const dia = 16;
+// ──────────────────────────────────────────────────────────────
+
+const anuncio = t.anuncio;
+const hora = t.hora;
+
+const DIAS_SEMANA = t.diasSemana;
+const NOMBRES_DIA = t.nombresDia;
+const NOMBRES_MES = t.nombresMes;
+
+// El almanaque se arma solo con la fecha de arriba: cambiando día, mes y año
+// se reacomodan la grilla y la marca del día.
+const fechaBoda = new Date(anio, mes - 1, dia);
+const diaSemana = NOMBRES_DIA[fechaBoda.getDay()];
+const nombreMes = NOMBRES_MES[mes - 1];
+
+const fechaLarga = t.formatoFecha
+    .replace("{dia}", diaSemana)
+    .replace("{numero}", String(dia))
+    .replace("{mes}", nombreMes);
+
+const arranque = new Date(anio, mes - 1, 1).getDay(); // huecos antes del 1
+const diasDelMes = new Date(anio, mes, 0).getDate();
+
+const celdas: (number | null)[] = [
+    ...Array(arranque).fill(null),
+    ...Array.from({ length: diasDelMes }, (_, i) => i + 1),
+];
+while (celdas.length % 7 !== 0) celdas.push(null);
+
+const semanas = Array.from({ length: celdas.length / 7 }, (_, i) =>
+    celdas.slice(i * 7, i * 7 + 7),
+);
+---
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- 🗺️ FECHA · el mapamundi, el almanaque y la cuenta regresiva -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!--
+   Sin padding abajo: la franja del Mensaje arranca pegada al papel del
+   mapa. Cualquier padding acá deja asomar el fondo blanco de la página
+   entre las dos secciones.
+-->
+<section id="fecha-boda" class="relative w-full pt-6 pb-0">
+    <!-- El marco declara el container para las unidades cqw de adentro -->
+    <div class="hoja-marco">
+        <div id="hoja-fecha" class="hoja">
+            <!-- Ramitas finas arriba, flanqueando el título -->
+            <img
+                src="/imagenes/florlateral.png"
+                alt=""
+                aria-hidden="true"
+                class="rama rama-si"
+            />
+            <img
+                src="/imagenes/florlateral.png"
+                alt=""
+                aria-hidden="true"
+                class="rama rama-sd"
+            />
+
+            <!-- Flores a los costados, a la altura del almanaque -->
+            <img
+                src="/imagenes/flores2.png"
+                alt=""
+                aria-hidden="true"
+                class="flor flor-izq"
+            />
+            <img
+                src="/imagenes/flores2.png"
+                alt=""
+                aria-hidden="true"
+                class="flor flor-der"
+            />
+
+            <div id="fecha-contenido" class="contenido">
+                <h2 class="titulo font-great-vibes">{anuncio}</h2>
+
+                <span class="separador" aria-hidden="true">
+                    <i class="raya"></i>
+                    <b class="corazon">&#9829;</b>
+                    <i class="raya"></i>
+                </span>
+
+                <!--
+                   Hueco reservado para el mapa, que viene dibujado en el
+                   PNG de fondo: el contenido lo esquiva en vez de taparlo.
+                -->
+                <div class="zona-mapa" aria-hidden="true"></div>
+
+                <!--
+                   El monograma: las dos iniciales grandes y el & chico y
+                   levantado entre las dos, con un filete corto abajo.
+                -->
+                <p class="iniciales font-great-vibes">
+                    {inicialNovio}<span class="amper font-cormorant"
+                        >&amp;</span
+                    >{inicialNovia}
+                </p>
+
+                <span class="filete-monograma" aria-hidden="true">
+                    <i class="rombo"></i>
+                    <i class="hilo"></i>
+                    <i class="rombo"></i>
+                </span>
+
+                <p class="fecha-larga font-great-vibes">{fechaLarga}</p>
+
+                <p class="hora">
+                    <!-- El reloj se pinta con máscara, no con filtros -->
+                    <span
+                        class="icono icono-terracota reloj"
+                        style="--ic:url('/imagenes/hora.png')"
+                        aria-hidden="true"></span>
+                    <span class="font-cormorant hora-texto">{hora}</span>
+                </p>
+
+                <!-- Almanaque del mes con el día marcado -->
+                <div class="almanaque">
+                    <div class="fila encabezado">
+                        {DIAS_SEMANA.map((letra) => <span class="celda">{letra}</span>)}
+                    </div>
+
+                    {
+                        semanas.map((semana) => (
+                            <div class="fila">
+                                {semana.map((numero) => (
+                                    <span
+                                        class:list={[
+                                            "celda",
+                                            numero === dia && "dia-marcado",
+                                        ]}
+                                    >
+                                        {numero ?? ""}
+                                    </span>
+                                ))}
+                            </div>
+                        ))
+                    }
+                </div>
+
+                <Contador />
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+    /*
+       Contexto de apilamiento propio. Sin esto la sección queda en z-index
+       auto y el z-index:2 de .contenido compite de igual a igual con el
+       z-index:2 del Versículo en el contexto raíz: como la Fecha va después
+       en el DOM ganaba ella, y el título "¡Nos Casamos!" se dibujaba encima
+       de la tarjeta del versículo (la sección se le monta 14rem arriba).
+       Con el z-index:1 acá, todo lo de adentro queda contenido y la hoja
+       entera pasa por debajo de la tarjeta.
+    */
+    #fecha-boda {
+        position: relative;
+        z-index: 1;
+        --terracota: #b9563a;
+        --terracota-suave: #cd7a56;
+        --tinta: #7a4a34;
+        --crema: #fdf4ec;
+    }
+
+    .hoja-marco {
+        width: 100%;
+        container-type: inline-size;
+    }
+
+    /*
+       El papel del mapa. Igual que en las otras hojas: el ancho manda, la
+       min-height guarda la proporción real (1672/941 = 177.7%) y si el
+       contenido pide más alto el fondo se estira solo a lo largo.
+    */
+    .hoja {
+        position: relative;
+        width: 100%;
+        min-height: 177.7cqw;
+        padding: 2.2rem 8% 2.6rem;
+        background-image: url("/imagenes/mundo.png");
+        background-size: 100% 100%;
+        background-repeat: no-repeat;
+        background-position: center;
+    }
+
+    .contenido {
+        position: relative;
+        z-index: 2;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+
+    /*
+       El mapa está dibujado en el PNG entre el 21% y el 50% del alto. Este
+       hueco es lo que hace que el texto caiga arriba y abajo de él y no
+       encima.
+    */
+    .zona-mapa {
+        width: 100%;
+        height: 56cqw;
+    }
+
+    /* ── Flores de los costados ── */
+    .flor {
+        position: absolute;
+        width: 25%;
+        height: auto;
+        z-index: 1;
+        pointer-events: none;
+        user-select: none;
+    }
+
+    /* De vuelta a los costados del almanaque */
+    .flor-izq {
+        left: -4%;
+        top: 60%;
+        transform: scaleX(-1) rotate(-5deg);
+    }
+
+    .flor-der {
+        right: -4%;
+        top: 63%;
+        transform: rotate(-5deg);
+    }
+
+    /* Ramitas finas, solo en las dos esquinas de arriba */
+    .rama {
+        position: absolute;
+        width: 19%;
+        height: auto;
+        z-index: 1;
+        pointer-events: none;
+        user-select: none;
+    }
+
+    /*
+       Metidas en las esquinas, no flotando adentro: pegadas al filo y
+       tendidas en diagonal (-42°) para que sigan la línea de la esquina.
+    */
+    .rama-si {
+        top: -1%;
+        left: -2%;
+        transform: rotate(-42deg);
+    }
+
+    .rama-sd {
+        top: -1%;
+        right: -2%;
+        transform: scaleX(-1) rotate(-42deg);
+    }
+
+    /* ── Título ── */
+    .titulo {
+        color: var(--terracota);
+        font-weight: 400;
+        font-size: clamp(2.7rem, 14cqw, 3.8rem);
+        line-height: 1.1;
+        margin: 0;
+    }
+
+    /* Rayita · corazón · rayita, en vez de un adorno pesado */
+    .separador {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-top: 0.4rem;
+    }
+
+    .raya {
+        display: block;
+        width: 2.2rem;
+        height: 1px;
+        background: var(--terracota-suave);
+    }
+
+    .corazon {
+        color: var(--terracota);
+        font-size: 0.7rem;
+        line-height: 1;
+        font-weight: 400;
+    }
+
+    /* ── Iniciales y fecha ── */
+    .iniciales {
+        color: var(--terracota);
+        font-size: clamp(2.8rem, 15cqw, 3.9rem);
+        line-height: 1;
+        margin: 0;
+    }
+
+    /*
+       El & va en serif itálica, que es el ampersand clásico del monograma,
+       y a la mitad del cuerpo de las iniciales. En Great Vibes tendría el
+       mismo tamaño que la M y la C y las tres se leerían como una maraña.
+
+       El vertical-align de 0.14em está calculado, no elegido a ojo: a
+       0.5em la altura de caja del serif es menor que la de la caligrafía,
+       y ese desplazamiento es lo que centra el & contra las mayúsculas en
+       vez de dejarlo flotando arriba.
+    */
+    .amper {
+        font-size: 0.5em;
+        font-style: italic;
+        font-weight: 400;
+        vertical-align: 0.14em;
+        margin: 0 0.02em;
+        opacity: 0.9;
+    }
+
+    /* Filete corto bajo el monograma: hilo con un rombo en cada punta */
+    .filete-monograma {
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+        margin-top: 0.55rem;
+    }
+
+    .filete-monograma .hilo {
+        display: block;
+        width: 3.4rem;
+        height: 1px;
+        background: var(--terracota-suave);
+    }
+
+    .filete-monograma .rombo {
+        display: block;
+        width: 4px;
+        height: 4px;
+        background: var(--terracota);
+        transform: rotate(45deg);
+    }
+
+    .fecha-larga {
+        color: var(--terracota);
+        font-size: clamp(1.5rem, 7.5cqw, 1.9rem);
+        line-height: 1.3;
+        margin: 0.5rem 0 0;
+    }
+
+    .hora {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.45rem;
+        margin: 0.5rem 0 0;
+    }
+
+    .reloj {
+        width: 1.15rem;
+        height: 1.15rem;
+        flex: none;
+    }
+
+    /* La hora en serif y no en caligrafía: es un dato, se lee de un golpe */
+    .hora-texto {
+        color: var(--tinta);
+        font-size: clamp(1.15rem, 5.4cqw, 1.35rem);
+        font-weight: 600;
+        letter-spacing: 0.03em;
+        /* Cifras de caja alta: las de estilo antiguo bailan de altura */
+        font-variant-numeric: lining-nums;
+    }
+
+    /* ── Almanaque ── */
+    .almanaque {
+        width: 100%;
+        max-width: 17rem;
+        margin: 1.2rem 0 1.6rem;
+        border: 1px solid rgba(185, 86, 58, 0.3);
+        border-radius: 6px;
+        overflow: hidden;
+        background: rgba(255, 250, 244, 0.55);
+    }
+
+    .fila {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+    }
+
+    .celda {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 1.75rem;
+        font-family: "Cormorant Garamond", serif;
+        font-size: 0.88rem;
+        color: var(--tinta);
+        font-variant-numeric: lining-nums;
+    }
+
+    /* La franja de los días va en terracota, como en el modelo */
+    .encabezado {
+        background: var(--terracota);
+    }
+
+    .encabezado .celda {
+        color: var(--crema);
+        font-weight: 600;
+        letter-spacing: 0.06em;
+    }
+
+    /* El día del casamiento, en un círculo terracota */
+    .dia-marcado {
+        /* z-index 0 arma contexto propio: el círculo queda dentro de la
+           celda y no se va detrás del fondo del almanaque */
+        position: relative;
+        z-index: 0;
+        color: var(--crema);
+        font-weight: 700;
+    }
+
+    .dia-marcado::before {
+        content: "";
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        width: 1.5rem;
+        height: 1.5rem;
+        margin: -0.75rem 0 0 -0.75rem;
+        border-radius: 9999px;
+        background: var(--terracota);
+        z-index: -1;
+    }
+</style>
+
+<script>
+    import { animarEntrada } from "../scripts/animaciones";
+
+    document.addEventListener("DOMContentLoaded", () => {
+        const bloque = document.getElementById("fecha-contenido");
+        if (!bloque) return;
+
+        animarEntrada(bloque.children, bloque);
+    });
+</script>

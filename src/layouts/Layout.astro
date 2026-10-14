@@ -1,0 +1,130 @@
+---
+// src/layouts/Layout.astro
+import "../styles/global.css";
+export interface Props {
+  title: string;
+  /* Lo que WhatsApp muestra bajo el nombre. Se puede apagar pasando "". */
+  descripcion?: string;
+}
+const { title, descripcion = "" } = Astro.props;
+
+/*
+   La tarjetita que arma WhatsApp cuando se pega el link.
+
+   La imagen tiene que ir con la dirección completa (https://…): una ruta
+   como /imagenes/… no le sirve, porque quien la busca es el servidor de
+   WhatsApp y no tiene de dónde colgarla.
+
+   El dominio lo pone Vercel solo en VERCEL_PROJECT_PRODUCTION_URL, y lo
+   actualiza si mañana se le enchufa un dominio propio. El de abajo es el
+   de respaldo, para que `npm run build` en la compu tampoco falle.
+*/
+const dominio = import.meta.env.VERCEL_PROJECT_PRODUCTION_URL
+    ? `https://${import.meta.env.VERCEL_PROJECT_PRODUCTION_URL}`
+    : "https://boda-alejandro-y-valentina.vercel.app";
+
+const miniatura = `${dominio}/imagenes/miniatura-og.jpg`;
+---
+
+<!doctype html>
+<html lang="es" class="m-0 p-0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="only light" />
+    <link rel="icon" type="image/png" href="/iconos/anillo.png" />
+    <meta name="generator" content={Astro.generator} />
+    <title>{title}</title>
+
+    <!--
+       Preview del enlace en WhatsApp, Facebook y Telegram.
+    -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={title} />
+    {descripcion && <meta property="og:description" content={descripcion} />}
+    <meta property="og:image" content={miniatura} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="849" />
+    <meta property="og:url" content={dominio} />
+
+    <!-- Twitter lee las suyas; summary_large_image es la tarjeta grande -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    {descripcion && <meta name="twitter:description" content={descripcion} />}
+    <meta name="twitter:image" content={miniatura} />
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Crimson+Text:wght@400;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Crimson+Text:wght@400;600;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Charm:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      /* Forzar modo claro y evitar dark mode del navegador */
+      html {
+        width: 100%;
+        height: 100%;
+        overflow-x: hidden;
+        color-scheme: only light;
+      }
+
+      body {
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        min-height: 100vh;
+        overflow-x: hidden;
+        color-scheme: only light;
+        /* Fuera de la columna móvil (tablet / PC) */
+        background-color: #e9e4dd;
+      }
+
+      /* La invitación SIEMPRE se ve como celular: columna centrada */
+      main {
+        width: 100%;
+        max-width: 430px;
+        margin: 0 auto;
+        min-height: 100vh;
+        /*
+           El papel de acuarela va acá y no en cada sección: así se ve como
+           una sola hoja continua de punta a punta, sin costuras entre
+           componentes.
+
+           attachment: fixed lo deja quieto mientras la invitación scrollea
+           por encima.
+        */
+        background-image: url("/imagenes/foto3.png");
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        background-attachment: fixed;
+        background-color: #f9efe4;
+        box-shadow: 0 0 40px rgba(0, 0, 0, 0.08);
+      }
+    </style>
+  </head>
+  <body class="min-h-screen m-0 p-0">
+    <main class="m-0 p-0 overflow-x-hidden">
+      <slot />
+    </main>
+  </body>
+</html>

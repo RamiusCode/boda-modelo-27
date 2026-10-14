@@ -1,0 +1,250 @@
+---
+// src/components/SugerenciaRegalo.astro
+// Sugerencia de regalo: el QR para transferencia y, debajo, la nota de que
+// la invitación es solo para adultos.
+// Los textos viven en src/i18n.
+import { textos } from "../i18n";
+
+
+const t = textos().regalo;
+const { titulo, texto, rotuloQr, altQr, altFoto } = t;
+
+// ── DATOS EDITABLES ───────────────────────────────────────────
+// Imagen del QR: dejala en public/imagenes/. Si se deja vacío, la caja
+// aparece igual pero con el recuadro punteado en lugar del código.
+const qr = "/imagenes/qr.png";
+const banco = "Banco Ejemplo";
+const cuenta = "Cuenta N° 0000000-000-001";
+const titular = "Valentina Morales Paredes";
+
+const foto = "/imagenes/foto3.jpg";
+// ──────────────────────────────────────────────────────────────
+---
+
+<section id="regalo" class="relative w-full overflow-hidden px-7 py-16">
+    <!--
+       Filete impreso. Va antes que los ramos en el markup a propósito: sin
+       z-index propio, el orden del documento decide, y así las flores le
+       pasan por encima como en la papelería de verdad.
+    -->
+    <span class="filete" aria-hidden="true"></span>
+
+    <!-- Ramos en diagonal, como en las demás secciones -->
+    <img
+        src="/imagenes/flores2.png"
+        alt=""
+        aria-hidden="true"
+        class="ramo ramo-si"
+    />
+    <img
+        src="/imagenes/flores2.png"
+        alt=""
+        aria-hidden="true"
+        class="ramo ramo-id"
+    />
+
+    <div
+        id="bloque-regalo"
+        class="relative flex flex-col items-center text-center"
+    >
+        <!-- Cajita de regalo, dibujada a línea como en el modelo -->
+        <svg class="icono-regalo" viewBox="0 0 48 46" aria-hidden="true">
+            <g
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.8"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+            >
+                <path d="M4 16h40v8H4z"></path>
+                <path d="M7 24h34v20H7z"></path>
+                <path d="M24 16v28"></path>
+                <path
+                    d="M24 16c-4 0-11 .4-13.6-2.2a4.6 4.6 0 0 1 0-6.6C13 4.6 17.7 6.7 20 9.2c1.9 2 3 4.6 4 6.8z"
+                ></path>
+                <path
+                    d="M24 16c4 0 11 .4 13.6-2.2a4.6 4.6 0 0 0 0-6.6C35 4.6 30.3 6.7 28 9.2c-1.9 2-3 4.6-4 6.8z"
+                ></path>
+            </g>
+        </svg>
+
+        <h2 class="font-great-vibes titulo-regalo">{titulo}</h2>
+
+        <p class="font-cormorant texto-regalo">
+            {texto.map((linea) => <span class="block">{linea}</span>)}
+        </p>
+
+        <!-- Foto de los novios con paspartú claro -->
+        <img
+            src={foto}
+            alt={altFoto}
+            width="900"
+            height="547"
+            class="foto-regalo"
+        />
+
+        <div class="caja-qr">
+            <p class="font-cormorant rotulo-qr">{rotuloQr}</p>
+            <span class="linea-qr" aria-hidden="true" />
+
+            {qr ? (
+                <img src={qr} alt={altQr} class="imagen-qr" />
+            ) : (
+                <span class="hueco-qr" aria-hidden="true" />
+            )}
+
+            <span class="linea-qr linea-cuenta" aria-hidden="true" />
+
+            <p class="font-cormorant banco-regalo">{banco}</p>
+            <p class="font-cormorant cuenta-regalo">{cuenta}</p>
+            <p class="font-cormorant titular-regalo">{titular}</p>
+        </div>
+
+    </div>
+</section>
+
+<style>
+    /* Filete fino, como el impreso de la invitación */
+    .filete {
+        position: absolute;
+        inset: 14px;
+        border: 1px solid rgba(164, 72, 42, 0.3);
+        pointer-events: none;
+    }
+
+    /* ── Ramos de las esquinas ── */
+    .ramo {
+        position: absolute;
+        width: 30%;
+        height: auto;
+        z-index: 0;
+        pointer-events: none;
+        user-select: none;
+    }
+
+    .ramo-si {
+        top: 0;
+        left: -13%;
+        transform: scaleY(-1) rotate(4deg);
+    }
+
+    .ramo-id {
+        bottom: 0;
+        right: -13%;
+        transform: scaleX(-1) rotate(4deg);
+    }
+
+    .icono-regalo {
+        width: 58px;
+        height: 56px;
+        color: #a4482a;
+    }
+
+    /* Great Vibes tiene el ojo más chico que Dancing Script: sube de 7.6vw
+       a 9.6vw para quedar del mismo cuerpo que los otros títulos */
+    .titulo-regalo {
+        color: #a4482a;
+        font-size: clamp(2.1rem, 9.6vw, 2.7rem);
+        line-height: 1.25;
+        margin-top: 0.8rem;
+    }
+
+    /* El PNG ya trae marco y flores: va sin envoltorio */
+    .foto-regalo {
+        display: block;
+        width: 92%;
+        max-width: 20rem;
+        height: auto;
+        margin: 1.6rem auto 0;
+        border: 6px solid #fffaf4;
+        border-radius: 4px;
+        box-shadow: 0 10px 24px rgba(120, 58, 32, 0.22);
+    }
+
+    .texto-regalo {
+        color: #7a3418;
+        font-size: clamp(1.05rem, 4.7vw, 1.22rem);
+        line-height: 1.6;
+        margin-top: 1rem;
+    }
+
+    .caja-qr {
+        width: 100%;
+        max-width: 330px;
+        margin-top: 1.8rem;
+        padding: 1.2rem 1.1rem 1.4rem;
+        /* Recuadro cuadrado, igual que la nota del código de vestimenta */
+        border: 1px solid #c2764f;
+    }
+
+    .rotulo-qr {
+        color: #a05a3c;
+        font-size: clamp(1rem, 4.5vw, 1.18rem);
+        letter-spacing: 0.14em;
+        /* text-indent compensa el hueco que el tracking deja después de la
+           última letra; sin esto el renglón se ve corrido a la izquierda */
+        text-indent: 0.14em;
+        line-height: 1.3;
+    }
+
+    .linea-qr {
+        display: block;
+        height: 1px;
+        margin: 0.8rem 0.4rem 1.1rem;
+        background: #d9a883;
+    }
+
+    .imagen-qr {
+        display: block;
+        width: 72%;
+        max-width: 210px;
+        margin: 0 auto;
+        border-radius: 10px;
+        background: #ffffff;
+    }
+
+    /* La segunda línea separa el QR de los datos de la cuenta */
+    .linea-cuenta {
+        margin: 1.2rem 0.4rem 1rem;
+    }
+
+    /* El nombre del banco, en dorado macizo y versalitas */
+    .banco-regalo {
+        color: #b0862b;
+        font-size: clamp(1.12rem, 5vw, 1.3rem);
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.16em;
+        /* text-indent compensa el hueco que el tracking deja después de la
+           última letra; sin esto el renglón se ve corrido a la izquierda */
+        text-indent: 0.16em;
+        line-height: 1.3;
+        margin-bottom: 0.3rem;
+    }
+
+    .cuenta-regalo {
+        color: #a05a3c;
+        font-size: clamp(1.02rem, 4.6vw, 1.18rem);
+        line-height: 1.4;
+        /* Cifras de caja alta: las de estilo antiguo bailan de altura */
+        font-variant-numeric: lining-nums;
+    }
+
+    .titular-regalo {
+        color: #7a3418;
+        font-size: clamp(1.08rem, 4.9vw, 1.25rem);
+        font-weight: 600;
+        line-height: 1.4;
+        margin-top: 0.25rem;
+    }
+
+</style>
+
+<script>
+    import { animarEntrada } from "../scripts/animaciones";
+
+    document.addEventListener("DOMContentLoaded", () => {
+        const bloque = document.getElementById("bloque-regalo");
+        if (bloque) animarEntrada(bloque.children, bloque);
+    });
+</script>

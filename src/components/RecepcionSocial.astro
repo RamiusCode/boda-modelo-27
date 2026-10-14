@@ -1,0 +1,256 @@
+---
+// src/components/RecepcionSocial.astro
+// Recepción social: mismo bloque terracota que la ceremonia religiosa, con
+// el arco de la fiesta en lugar de la iglesia. Lo que la distingue son los
+// ramos en dos esquinas opuestas.
+// Los textos viven en src/i18n.
+import { textos } from "../i18n";
+
+
+const { titulo, salon, direccion, textoBoton } = textos().recepcion;
+
+const hora = "18:00";
+const mapa = "#";
+// El archivo tiene tilde en el nombre: va escapado para que la URL no
+// dependa de cómo codifique cada servidor.
+const dibujo = "/imagenes/recepci%C3%B3n.png";
+// ──────────────────────────────────────────────────────────────
+---
+
+<section id="recepcion-social" class="relative w-full overflow-hidden">
+    <!--
+       Filete impreso. Va antes que los ramos en el markup a propósito: sin
+       z-index propio, el orden del documento decide, y así las flores le
+       pasan por encima como en la papelería de verdad.
+    -->
+    <span class="filete" aria-hidden="true"></span>
+
+    <!--
+       Ramos en dos esquinas opuestas: el overflow-hidden de la sección los
+       corta contra el filo, que es lo que los deja entrando en cuadro en
+       vez de flotando sueltos.
+    -->
+    <img
+        src="/imagenes/flores2.png"
+        alt=""
+        aria-hidden="true"
+        class="ramo ramo-si"
+    />
+    <img
+        src="/imagenes/flores2.png"
+        alt=""
+        aria-hidden="true"
+        class="ramo ramo-id"
+    />
+
+    <div
+        id="bloque-recepcion"
+        class="relative flex flex-col items-center px-7 py-16 text-center"
+    >
+        <h2 class="font-great-vibes titulo-recepcion">{titulo}</h2>
+
+        <p class="hora-recepcion">
+            <!-- El reloj se pinta con máscara, no con filtros -->
+            <span
+                class="icono icono-crema reloj-recepcion"
+                style="--ic:url('/imagenes/hora.png')"
+                aria-hidden="true"></span>
+            <span class="font-cormorant hora-texto">{hora}</span>
+        </p>
+
+        <span class="separador" aria-hidden="true">
+            <i class="raya"></i>
+            <b class="corazon">&#9829;</b>
+            <i class="raya"></i>
+        </span>
+
+        <!-- El dibujo también va con máscara: el trazo negro quedaría duro -->
+        <span
+            class="icono icono-crema dibujo-recepcion"
+            style={`--ic:url('${dibujo}')`}
+            aria-hidden="true"></span>
+
+        <h3 class="font-cormorant nombre-salon">
+            {salon.map((linea) => <span class="block">{linea}</span>)}
+        </h3>
+
+        <p class="font-cormorant direccion-salon">
+            {direccion.map((linea) => <span class="block">{linea}</span>)}
+        </p>
+
+        <a
+            href={mapa}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="font-cormorant boton-mapa"
+        >
+            <svg viewBox="0 0 24 24" aria-hidden="true" class="pin-mapa">
+                <path
+                    d="M12 2a7 7 0 0 0-7 7c0 5.2 7 13 7 13s7-7.8 7-13a7 7 0 0 0-7-7zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5z"
+                    fill="currentColor"></path>
+            </svg>
+            {textoBoton}
+        </a>
+    </div>
+</section>
+
+<style>
+    /* Terracota liso, el mismo tono que la ceremonia religiosa */
+    #recepcion-social {
+        background: #b45733;
+    }
+
+    /* Filete fino, como el impreso de la invitación */
+    .filete {
+        position: absolute;
+        inset: 14px;
+        border: 1px solid rgba(253, 244, 236, 0.32);
+        pointer-events: none;
+    }
+
+    /*
+       ── Ramos de las esquinas ──
+       En dos esquinas opuestas y no en las cuatro: sobre un bloque de color
+       liso, dos alcanzan para dar el detalle sin cargar el cuadro.
+       z-index 0 los deja detrás del texto, que va en .relative.
+    */
+    .ramo {
+        position: absolute;
+        width: 32%;
+        height: auto;
+        z-index: 0;
+        pointer-events: none;
+        user-select: none;
+    }
+
+    /* Bien corridos a los filos, como en el resto de las secciones */
+    .ramo-si {
+        top: 0;
+        left: -13%;
+        transform: scaleY(-1) rotate(4deg);
+    }
+
+    .ramo-id {
+        bottom: 0;
+        right: -13%;
+        transform: scaleX(-1) rotate(4deg);
+    }
+
+    .titulo-recepcion {
+        color: #fdf6ee;
+        font-size: clamp(2.1rem, 9.6vw, 2.7rem);
+        line-height: 1.25;
+    }
+
+    .hora-recepcion {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.45rem;
+        margin-top: 0.5rem;
+        color: #fbeee2;
+    }
+
+    .reloj-recepcion {
+        width: 1.5rem;
+        height: 1.5rem;
+        flex: none;
+    }
+
+    /* Rayita · corazón · rayita, el mismo remate del resto de la invitación */
+    .separador {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-top: 1.1rem;
+    }
+
+    .raya {
+        display: block;
+        width: 2.2rem;
+        height: 1px;
+        background: rgba(253, 244, 236, 0.55);
+    }
+
+    .corazon {
+        color: #fbeee2;
+        font-size: 0.7rem;
+        line-height: 1;
+        font-weight: 400;
+    }
+
+    .hora-texto {
+        font-size: clamp(1.4rem, 6.4vw, 1.75rem);
+        font-weight: 600;
+        letter-spacing: 0.03em;
+        /* Cifras de caja alta: las de estilo antiguo bailan de altura */
+        font-variant-numeric: lining-nums;
+    }
+
+    .dibujo-recepcion {
+        width: 37%;
+        max-width: 148px;
+        /* La proporción del dibujo es 449x517 */
+        aspect-ratio: 449 / 517;
+        margin-top: 1.2rem;
+    }
+
+    .nombre-salon {
+        color: #fdf6ee;
+        font-size: clamp(1.25rem, 5.8vw, 1.55rem);
+        font-weight: 600;
+        letter-spacing: 0.06em;
+        /* text-indent compensa el hueco que el tracking deja después de la
+           última letra; sin esto el renglón se ve corrido a la izquierda */
+        text-indent: 0.06em;
+        line-height: 1.4;
+        margin-top: 1.4rem;
+    }
+
+    .direccion-salon {
+        color: #f6e2d3;
+        font-size: clamp(1.15rem, 5.3vw, 1.4rem);
+        line-height: 1.55;
+        margin-top: 0.9rem;
+    }
+
+    /*
+       El botón del modelo: fondo claro, texto oscuro y forma de hoja: en
+       punta arriba a la izquierda y abajo a la derecha, redondeado en las
+       otras dos esquinas.
+    */
+    .boton-mapa {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.55rem;
+        margin-top: 1.8rem;
+        padding: 0.7rem 1.8rem;
+        border-radius: 2px 24px 2px 24px;
+        background: #e6c4ad;
+        color: #7a3418;
+        font-size: clamp(1rem, 4.6vw, 1.2rem);
+        font-weight: 600;
+        letter-spacing: 0.03em;
+        box-shadow: 0 5px 14px rgba(90, 40, 22, 0.16);
+        transition: transform 0.3s ease;
+    }
+
+    .boton-mapa:hover {
+        transform: scale(1.04);
+    }
+
+    .pin-mapa {
+        width: 1.15em;
+        height: 1.15em;
+        flex: none;
+    }
+</style>
+
+<script>
+    import { animarEntrada } from "../scripts/animaciones";
+
+    document.addEventListener("DOMContentLoaded", () => {
+        const bloque = document.getElementById("bloque-recepcion");
+        if (bloque) animarEntrada(bloque.children, bloque);
+    });
+</script>

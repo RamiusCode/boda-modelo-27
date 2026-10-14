@@ -1,0 +1,52 @@
+---
+// src/components/Invitacion.astro
+// El cuerpo completo de la invitación, en un solo lugar.
+import Portada from "./Portada.astro";
+import NombresFlores from "./NombresFlores.astro";
+import Foto1 from "./Foto1.astro";
+import Dedicatoria2 from "./Dedicatoria2.astro";
+import Versiculo from "./Versiculo.astro";
+import NombresPadres from "./NombresPadres.astro";
+import NombresPadrinos from "./NombresPadrinos.astro";
+import Dedicatoria3 from "./Dedicatoria3.astro";
+import Fecha from "./Fecha.astro";
+import Mensaje from "./Mensaje.astro";
+import CeremoniaReligiosa from "./CeremoniaReligiosa.astro";
+import RecepcionSocial from "./RecepcionSocial.astro";
+import Cronograma from "./Cronograma.astro";
+import CodigoVestimenta from "./CodigoVestimenta.astro";
+import Pase from "./Pase.astro";
+import SugerenciaRegalo from "./SugerenciaRegalo.astro";
+import Puntualidad from "./Puntualidad.astro";
+import NuestraHistoria from "./NuestraHistoria.astro";
+import Despedida from "./Despedida.astro";
+import BotonMusica from "./BotonMusica.astro";
+---
+
+<!-- PORTADA (cubre todo hasta que se toca el botón de ingreso) -->
+<Portada />
+
+<!-- CONTENIDO DE LA INVITACIÓN -->
+<div id="contenido-principal">
+    <NombresFlores />
+    <Foto1 />
+    <Dedicatoria2 />
+    <Versiculo />
+    <Fecha />
+    <Mensaje />
+    <NombresPadres />
+    <NombresPadrinos />
+    <Dedicatoria3 />
+    <CeremoniaReligiosa />
+    <RecepcionSocial />
+    <CodigoVestimenta />
+    <Cronograma />
+    <Puntualidad />
+    <SugerenciaRegalo />
+    <Pase />
+    <NuestraHistoria />
+    <Despedida />
+</div>
+
+<!-- Control de música flotante -->
+<BotonMusica />
